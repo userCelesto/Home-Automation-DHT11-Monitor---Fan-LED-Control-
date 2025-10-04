@@ -114,21 +114,19 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
     import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
 
-    // Firebase config (replace with yours)
     const firebaseConfig = {
-      apiKey: "AIzaSyXXXX...",
-      authDomain: "yourapp.firebaseapp.com",
-      databaseURL: "https://yourapp-default-rtdb.firebaseio.com",
-      projectId: "yourapp",
-      storageBucket: "yourapp.appspot.com",
-      messagingSenderId: "1234567890",
-      appId: "1:1234567890:web:abcdef123456"
+      apiKey: "AIzaSyB5d_0y6iTJPwWxHNbNfZ1K1XeXt8kc3ZI",
+      authDomain: "actmidterm.firebaseapp.com",
+      databaseURL: "https://actmidterm-default-rtdb.firebaseio.com",
+      projectId: "actmidterm",
+      storageBucket: "actmidterm.firebasestorage.app",
+      messagingSenderId: "301947236933",
+      appId: "1:301947236933:web:d2fc6b582bb18cd896a92c"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // Listen for sensor values
     onValue(ref(db, "DHT11/Temperature"), snap => {
       document.getElementById("temperature").innerText = snap.val() + " °C";
     });
@@ -141,17 +139,14 @@
     fanSwitch.addEventListener("change", () => {
       set(ref(db, "FAN_STATUS"), fanSwitch.checked ? 1 : 0);
     });
-    // Sync with DB
     onValue(ref(db, "FAN_STATUS"), snap => {
       fanSwitch.checked = snap.val() === 1;
     });
 
-    // LED switch
     const ledSwitch = document.getElementById("ledSwitch");
     ledSwitch.addEventListener("change", () => {
       set(ref(db, "LED_STATUS"), ledSwitch.checked ? 1 : 0);
     });
-    // Sync with DB
     onValue(ref(db, "LED_STATUS"), snap => {
       ledSwitch.checked = snap.val() === 1;
     });

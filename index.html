@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>DHT11 Monitor</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f7f9;
+      text-align: center;
+      padding: 40px;
+    }
+    h1 {
+      color: #333;
+    }
+    .card {
+      display: inline-block;
+      background: #fff;
+      padding: 20px 30px;
+      margin: 15px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      min-width: 180px;
+    }
+    .value {
+      font-size: 2em;
+      color: #0077cc;
+    }
+    .controls {
+      margin-top: 30px;
+    }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+      margin: 10px;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: #4CAF50;
+    }
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+    .label {
+      display: block;
+      font-weight: bold;
+      margin-top: 10px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌡️ DHT11 Monitor</h1>
+
+  <div class="card">
+    <h2>Temperature</h2>
+    <div class="value" id="temperature">-- °C</div>
+  </div>
+
+  <div class="card">
+    <h2>Humidity</h2>
+    <div class="value" id="humidity">-- %</div>
+  </div>
+
+  <div class="controls">
+    <h2>Controls</h2>
+
+    <div>
+      <label class="label">Fan</label>
+      <label class="switch">
+        <input type="checkbox" id="fanSwitch">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div>
+      <label class="label">LED</label>
+      <label class="switch">
+        <input type="checkbox" id="ledSwitch">
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+
+    // Firebase config (replace with yours)
+    const firebaseConfig = {
+      apiKey: "AIzaSyXXXX...",
+      authDomain: "yourapp.firebaseapp.com",
+      databaseURL: "https://yourapp-default-rtdb.firebaseio.com",
+      projectId: "yourapp",
+      storageBucket: "yourapp.appspot.com",
+      messagingSenderId: "1234567890",
+      appId: "1:1234567890:web:abcdef123456"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // Listen for sensor values
+    onValue(ref(db, "DHT11/Temperature"), snap => {
+      document.getElementById("temperature").innerText = snap.val() + " °C";
+    });
+    onValue(ref(db, "DHT11/Humidity"), snap => {
+      document.getElementById("humidity").innerText = snap.val() + " %";
+    });
+
+    // Fan switch
+    const fanSwitch = document.getElementById("fanSwitch");
+    fanSwitch.addEventListener("change", () => {
+      set(ref(db, "FAN_STATUS"), fanSwitch.checked ? 1 : 0);
+    });
+    // Sync with DB
+    onValue(ref(db, "FAN_STATUS"), snap => {
+      fanSwitch.checked = snap.val() === 1;
+    });
+
+    // LED switch
+    const ledSwitch = document.getElementById("ledSwitch");
+    ledSwitch.addEventListener("change", () => {
+      set(ref(db, "LED_STATUS"), ledSwitch.checked ? 1 : 0);
+    });
+    // Sync with DB
+    onValue(ref(db, "LED_STATUS"), snap => {
+      ledSwitch.checked = snap.val() === 1;
+    });
+  </script>
+</body>
+</html>
